@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        return $this->redirect_to();
     }
 
     /**
@@ -49,5 +49,19 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function redirect_to()
+    {
+        $user_level = Auth::user()->level;
+
+        $redirectRoute = match ($user_level) {
+            'Member' => RouteServiceProvider::MEMBER_HOME,
+            'Publisher' => RouteServiceProvider::PUBLISHER_HOME,
+            'Admin' => RouteServiceProvider::ADMIN_HOME,
+            'Super Admin' => RouteServiceProvider::SUPERADMIN_HOME,
+        };
+
+        return redirect()->intended($redirectRoute);
     }
 }
